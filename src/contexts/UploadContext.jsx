@@ -8,7 +8,7 @@ const UploadContext = createContext();
 export function UploadProvider({ children }) {
     const [uploads, setUploads] = useState([]);
 
-    const startUpload = async ({ file, title, module, instructor, userId, onComplete }) => {
+    const startUpload = async ({ file, pdfFile, title, duration, module, instructor, userId, onComplete }) => {
         const id = Math.random().toString(36).substring(7);
         const newUpload = {
             id,
@@ -34,7 +34,7 @@ export function UploadProvider({ children }) {
 
             updateUploadProgress(id, 0, 'uploading');
 
-            // 2. Storage Upload
+            // 2. Storage Upload (Video/Image)
             const fileExt = fileToUpload.name.split('.').pop();
             const fileName = `${Date.now()}-${id}.${fileExt}`;
             const filePath = `lessons/${fileName}`;
@@ -49,17 +49,44 @@ export function UploadProvider({ children }) {
 
             if (uploadError) throw uploadError;
 
-            const { data: { publicUrl } } = supabase.storage
+            const { data: { publicUrl: contentUrl } } = supabase.storage
                 .from('content')
                 .getPublicUrl(filePath);
 
-            // 3. DB Insert
+            // 3. Upload PDF if exists
+            let pdfUrl = null;
+            if (pdfFile) {
+                updateUploadProgress(id, 50, 'uploading_pdf');
+                const pdfExt = pdfFile.name.split('.').pop();
+                const pdfFileName = `${Date.now()}-doc-${id}.${pdfExt}`;
+                const pdfPath = `materials/${pdfFileName}`;
+
+                const { error: pdfUploadError } = await supabase.storage
+                    .from('content')
+                    .upload(pdfPath, pdfFile, {
+                        contentType: 'application/pdf',
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (pdfUploadError) throw pdfUploadError;
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('content')
+                    .getPublicUrl(pdfPath);
+
+                pdfUrl = publicUrl;
+            }
+
+            // 4. DB Insert
             const { error: dbError } = await supabase
                 .from('lessons')
                 .insert({
                     title,
                     module,
-                    video_url: publicUrl,
+                    duration: duration ? parseInt(duration) : null,
+                    video_url: contentUrl,
+                    pdf_url: pdfUrl,
                     instructor: instructor || 'Admin',
                     created_by: userId
                 });

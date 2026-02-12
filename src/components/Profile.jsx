@@ -26,6 +26,7 @@ export default function Profile() {
         bio: '',
         avatar: ''
     });
+    const [completedCount, setCompletedCount] = useState(0);
 
     React.useEffect(() => {
         if (!authLoading && user) {
@@ -36,8 +37,23 @@ export default function Profile() {
                 bio: profile?.bio || '',
                 avatar: profile?.avatar_url || ''
             });
+            fetchProgress(user.id);
         }
     }, [user, profile, authLoading]);
+
+    const fetchProgress = async (userId) => {
+        try {
+            const { count, error } = await supabase
+                .from('user_progress')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId);
+
+            if (error) throw error;
+            setCompletedCount(count || 0);
+        } catch (err) {
+            console.error("Error fetching progress:", err);
+        }
+    };
 
     const handleUpdate = async (e) => {
         e.preventDefault();
@@ -192,7 +208,7 @@ export default function Profile() {
                                         </div>
                                         <div className="flex items-center justify-between text-xs">
                                             <span className="text-muted-foreground">Cursos</span>
-                                            <span className="font-bold">4 Concluídos</span>
+                                            <span className="font-bold">{completedCount} Aulas Concluídas</span>
                                         </div>
                                     </div>
                                 </Card>

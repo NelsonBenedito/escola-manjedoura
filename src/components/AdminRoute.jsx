@@ -13,7 +13,9 @@ const AdminRoute = ({ children }) => {
         );
     }
 
-    if (!user || profile?.role !== 'admin') {
+    const isAdmin = Array.isArray(profile?.role) ? profile.role.includes('admin') : profile?.role === 'admin';
+
+    if (!user || !isAdmin) {
         return <Navigate to="/" replace />;
     }
 

@@ -23,7 +23,12 @@ export const AuthProvider = ({ children }) => {
             console.log('Auth event:', event, session?.user?.id);
 
             if (session?.user) {
-                setUser(session.user);
+                // Estabiliza o usuário: Só atualiza se o ID mudar ou se não houver usuário
+                setUser(current => {
+                    if (current?.id === session.user.id) return current;
+                    return session.user;
+                });
+
                 // Evita chamadas duplicadas para o mesmo usuário no mesmo evento
                 if (lastProfileFetchId !== session.user.id) {
                     lastProfileFetchId = session.user.id;
@@ -84,12 +89,22 @@ export const AuthProvider = ({ children }) => {
         try {
             const { data, error } = await supabase
                 .from('profiles')
-                .select('*')
+                .select('*, user_roles(role_id)')
                 .eq('id', userId)
                 .single();
 
             if (data) {
-                setProfile(data);
+                // Flatten user_roles into a simple array of role strings safely
+                const rolesData = data.user_roles;
+                const roleArray = Array.isArray(rolesData)
+                    ? rolesData.map(ur => ur.role_id)
+                    : (rolesData?.role_id ? [rolesData.role_id] : ['student']);
+
+                const flattenedProfile = {
+                    ...data,
+                    role: roleArray
+                };
+                setProfile(flattenedProfile);
             } else if (error && error.code !== 'PGRST116') {
                 console.error('Erro ao rocurar perfil:', error);
             }

@@ -83,7 +83,7 @@ export default function Header() {
                             <Button
                                 key={item}
                                 variant="ghost"
-                                className="text-[11px] uppercase tracking-[0.2em] font-medium hover:text-spiritual-gold hover:bg-transparent transition-colors h-auto py-2"
+                                className="text-[11px] tracking-[0.2em] font-medium hover:text-spiritual-gold hover:bg-transparent transition-colors h-auto py-4"
                                 asChild
                             >
                                 <a href={`#${item.toLowerCase()}`}>
@@ -99,11 +99,11 @@ export default function Header() {
                 {userDisplay ? (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="flex items-center gap-2 sm:gap-3 group hover:bg-white/5 rounded-full px-2 py-1 h-auto border border-white/5 backdrop-blur-sm">
-                                <div className="hidden sm:flex flex-col items-end mr-1">
+                            <Button variant="ghost" className="flex items-center gap-2 sm:gap-3 group hover:bg-white/5 rounded-full px-4 py-1 h-auto border border-white/5 backdrop-blur-sm">
+                                <div className="hidden sm:flex flex-col items-end md:mr-1">
                                     <span className="text-[10px] uppercase tracking-widest font-bold">{userDisplay.name}</span>
                                     <span className="text-[9px] text-muted-foreground uppercase tracking-tighter">
-                                        {profile?.role === 'admin' ? 'Administrador' : 'Aluno'}
+                                        {profile?.role?.includes('admin') ? 'Administrador' : profile?.role?.includes('instructor') ? 'Instrutor' : 'Aluno'}
                                     </span>
                                 </div>
                                 <Avatar className="w-10 h-10 border-2 border-spiritual-gold/20 shadow-lg">
@@ -120,7 +120,7 @@ export default function Header() {
                                 <span className="text-xs text-muted-foreground">{userDisplay?.email}</span>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-white/5 mb-2" />
-                            {profile?.role === 'admin' && (
+                            {(profile?.role?.includes('admin') || profile?.role === 'admin') && (
                                 <>
                                     <DropdownMenuItem asChild className="p-3 rounded-xl focus:bg-white/5 cursor-pointer">
                                         <Link to="/admin" className="flex items-center gap-3">
