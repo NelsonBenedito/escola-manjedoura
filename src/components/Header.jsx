@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import logo from '../assets/ManjedouraLogoWhite.png';
+import logo from '../../public/ManjedouraMovimentoIcon.svg';
+import RotationButton from './RotationButton';
 
 import {
     DropdownMenu,
@@ -80,16 +81,11 @@ export default function Header() {
                 {!userDisplay && (
                     <nav className="hidden lg:flex items-center gap-4">
                         {navItems.map((item) => (
-                            <Button
+                            <RotationButton
                                 key={item}
-                                variant="ghost"
-                                className="text-[11px] tracking-[0.2em] font-medium hover:text-spiritual-gold hover:bg-transparent transition-colors h-auto py-4"
-                                asChild
-                            >
-                                <a href={`#${item.toLowerCase()}`}>
-                                    {item}
-                                </a>
-                            </Button>
+                                item={item}
+                                href={`#${item.toLowerCase()}`}
+                            />
                         ))}
                     </nav>
                 )}

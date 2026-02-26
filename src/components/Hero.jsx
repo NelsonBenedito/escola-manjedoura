@@ -8,7 +8,7 @@ export default function Hero() {
             {/* Background Image with Layered Shadows */}
             <div className="absolute inset-0 z-0">
                 <img
-                    src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=2600"
+                    src="/ManjedouraImagem.jpg"
                     alt="Silent contemplation"
                     className="w-full h-full object-cover scale-110 motion-safe:animate-slow-zoom"
                 />
